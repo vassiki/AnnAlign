@@ -1,0 +1,14 @@
+.
+..
+.DS_Store
+annotations
+movie
+share
+lib
+include
+bin
+.idea
+pip-selfcheck.json
+pyvenv.cfg
+scripts/.
+scripts/..

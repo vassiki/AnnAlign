@@ -1,47 +1,62 @@
-import os
-import pandas as pd
 import numpy as np
+import pandas as pd
 
 
-def format_annotation_file(fn):
-    annotation_dir = '../annotations/raw'
-    ra = pd.read_csv(os.path.join(annotation_dir, fn), sep='\t', skiprows=1)
-    if 'ra1' in fn:
-        ra.rename(
-            columns={"Begin Time - ss.msec": "Start", "End Time - ss.msec": "End", "Duration - ss.msec": "Duration",
-                     "Face(s) present": "Face Present"}, inplace=True)
-    else:
-        ra.rename(
-            columns={"Begin Time - ss.msec": "Start", "End Time - ss.msec": "End", "Duration - ss.msec": "Duration",
-                     "Face present": "Face Present"}, inplace=True)
+def downsample(f, temporal_resolution):
+    """
+    Function to make a float adhere to the distribution
+    specified by the temporal resolution
 
-    return ra
+    Parameters
+    ----------
+    f : float to downsample
+    temporal_resolution : step for the distribution
 
-
-def round_ms(f, temporal_resolution):
-    decimal = f - np.fix(f)
-    if decimal <= 0.5:
-        val = 0.0
-    else:
-        val = temporal_resolution
-    return np.fix(f) + val
+    Returns
+    -------
+    downsampled float
+    """
+    window = np.arange(f - np.mod(f, temporal_resolution), f + 2 * temporal_resolution, temporal_resolution)
+    diff = np.abs(window - f)
+    return window[np.argmin(diff)]
 
 
-def annotation_timestamps(dim, temporal_resolution):
-    file = 'ra2_part2.txt'
-    ra = format_annotation_file(file)
+def annotation_timestamps(start_times, end_times, dim, temporal_resolution):
+    """
+    Function to create intervals for the annotation timestamps
 
-    df = ra[["Start", "End", dim]]
-    df = df.dropna(subset=[dim])
+    Parameters
+    ----------
+    start_times : annotation start times
+    end_times : annotation end times
+    dim: dimension, or column of interest
+    temporal_resolution: steps of the intervals
 
-    df["Start"] = df.apply(lambda row: round_ms(row["Start"], temporal_resolution), axis=1)
-    df["End"] = df.apply(lambda row: round_ms(row["End"], temporal_resolution), axis=1)
+    Returns
+    -------
+    timestamps : np array with all time stamps that have annotations
+        for the desired dimension
+    """
+    df = pd.DataFrame({"Start": start_times, "End": end_times})
 
-    s = np.array([])
+    df["Start"] = df.apply(lambda row: downsample(row["Start"], temporal_resolution), axis=1)
+    df["End"] = df.apply(lambda row: downsample(row["End"], temporal_resolution), axis=1)
+
+    annots = np.array([])
     for i in df.index:
-        x = np.arange(df.loc[i, 'Start'], df.loc[i, 'End'], temporal_resolution)
-        s = np.append(s, x)
+        annot_window = np.arange(df.loc[i, 'Start'], df.loc[i, 'End'], temporal_resolution)
+        annots = np.append(annots, annot_window)
 
-    return np.unique(s)
+    red_annots = np.unique(annots)
+    min_ts, max_ts = 0, np.max(df['End'])
+    ts = np.arange(min_ts, max_ts, temporal_resolution)
+    timestamps = np.zeros(len(ts))
+    for idx, val in enumerate(ts):
+        if val in red_annots:
+            timestamps[idx] = 1
+
+    return timestamps, ts
+
+
 
 

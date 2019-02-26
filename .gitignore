@@ -10,5 +10,7 @@ bin
 .idea
 pip-selfcheck.json
 pyvenv.cfg
-scripts/.
-scripts/..
+annalign/.
+annalign/..
+annalign/__pycache__
+annalign/trythings.py

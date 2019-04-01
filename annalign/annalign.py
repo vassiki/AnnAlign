@@ -49,14 +49,17 @@ def annotation_timestamps(start_times, end_times, dim, temporal_resolution):
 
     red_annots = np.unique(annots)
     min_ts, max_ts = 0, np.max(df['End'])
+    """
+    ToDo: ts should be the length of the movie part, if doesn't make sense to compute here then
+    write a separate function
+    """
     ts = np.arange(min_ts, max_ts, temporal_resolution)
     timestamps = np.zeros(len(ts))
     for idx, val in enumerate(ts):
         if val in red_annots:
             timestamps[idx] = 1
 
-    return timestamps, ts
-
+    return timestamps
 
 
 

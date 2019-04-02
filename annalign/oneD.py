@@ -17,7 +17,7 @@ def format_file(fn):
                      "Face present": "Face Present"}, inplace=True)
 
 
-def timingfile(df, dimension):
+def timing_file(df, sub, run, dimension):
 
     """
     df is formatted dataframe for an RA
@@ -34,7 +34,8 @@ def timingfile(df, dimension):
 
     present_df = df.iloc(present_indices)
 
-    prefix = '_'.join([val.lower() for val in dimension.split(' ')])
+    prefix = '_'.join(['sub-sid0000{0}'.format(sub)] + ['run_{0}'.format(run)] +
+                      [val.lower() for val in dimension.split(' ')])
 
     start_times_present = np.round(present_df["Start"]).values
 
@@ -47,3 +48,10 @@ def timingfile(df, dimension):
                fmt='%4.1f')
 
 
+def concat_run_timings(sub, dimension, type_data):
+    run_files = glob.glob('sub-sid0000{0}*_{1}.txt'.format(sub, type_data))
+    out_file = 'sub-sid0000{0}_{1}_{2}_allruns.txt'.format(sub, dimension, type_data)
+    with open(out_file, 'w') as outfile:
+        for fname in run_files:
+            with open(fname) as infile:
+                outfile.write(infile.read())

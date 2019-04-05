@@ -16,6 +16,8 @@ def format_file(fn):
             columns={"Begin Time - ss.msec": "Start", "End Time - ss.msec": "End", "Duration - ss.msec": "Duration",
                      "Face present": "Face Present"}, inplace=True)
 
+    return ra
+
 
 def timing_file(df, sub, run, dimension):
 
@@ -27,23 +29,24 @@ def timing_file(df, sub, run, dimension):
     # clearly, the dimension has to contain strings
     df[dimension] = df[dimension].str.lower()
 
+    # round start times and round all non unique start times
+    df['Start'] = np.round(df['Start'], 1)
     # 'no' in dimension of interest
     not_present_df = df[df[dimension].str.contains('no', na=True)]
 
-    present_indices = [idx for idx in range(len(df)) if idx not in non_face_df.index]
-
-    present_df = df.iloc(present_indices)
-
+    not_present_df = not_present_df['Start'].drop_duplicates()
+    present_indices = [idx for idx in range(len(df)) if idx not in not_present_df.index]
+    # only the col val gets picked once duplicates are dropped
+    present_df = df.iloc[present_indices]
+    present_df = present_df['Start'].drop_duplicates()
     prefix = '_'.join(['sub-sid0000{0}'.format(sub)] + ['run_{0}'.format(run)] +
                       [val.lower() for val in dimension.split(' ')])
 
-    start_times_present = np.round(present_df["Start"]).values
-
+    start_times_present = present_df["Start"].values
     np.savetxt("{0}_annot_present.txt".format(prefix), start_times_present.reshape(1, start_times_present.shape[0]),
                fmt='%4.1f')
 
-    start_times_absent = np.round(not_present_df["Start"]).values
-
+    start_times_absent = not_present_df["Start"].values
     np.savetxt("{0}_annot_absent.txt".format(prefix), start_times_absent.reshape(1, start_times_absent.shape[0]),
                fmt='%4.1f')
 

@@ -40,7 +40,7 @@ def timing1D(df):
     return newdf
 
 
-def timing_file(df, sub, run, dimension):
+def timing_file(df, part, dimension):
 
     """
     df is formatted dataframe for an RA
@@ -54,25 +54,25 @@ def timing_file(df, sub, run, dimension):
     # not_present_df = df[df[dimension].isnull()]
     # present_df = df[~df['Face Present'].isnull()]
     newdf = timing1D(df)
-    prefix = '_'.join(['sub-sid0000{0}'.format(sub)] + ['run_{0}'.format(run)] +
+    prefix = '_'.join(['part_{0}'.format(str(part))] +
                       [val.lower() for val in dimension.split(' ')])
 
     start_times_present = newdf['start'].values
     print(type(start_times_present))
     #start_times_present = present_df["Start"].values
-    np.savetxt("{0}_annot_present.txt".format(prefix), start_times_present.reshape(1, start_times_present.shape[0]),
+    np.savetxt(os.path.join("../outputs","{0}_annot_present.txt".format(prefix)), start_times_present.reshape(1, start_times_present.shape[0]),
                fmt='%4.1f')
 
     start_times_absent = newdf['end'].values
     #start_times_absent = not_present_df["Start"].values
-    np.savetxt("{0}_annot_absent.txt".format(prefix), start_times_absent.reshape(1, start_times_absent.shape[0]),
+    np.savetxt(os.path.join("../outputs","{0}_annot_absent.txt".format(prefix)), start_times_absent.reshape(1, start_times_absent.shape[0]),
                fmt='%4.1f')
     return start_times_present, start_times_absent
 
 
 def concat_run_timings(sub, dimension, type_data):
-    run_files = glob.glob('sub-sid0000{0}*_{1}.txt'.format(sub, type_data))
-    out_file = 'sub-sid0000{0}_{1}_{2}_allruns.txt'.format(sub, dimension, type_data)
+    run_files = glob.glob('sub-sid000{0}*_{1}.txt'.format(sub, type_data))
+    out_file = 'sub-sid000{0}_{1}_{2}_allruns.txt'.format(sub, dimension, type_data)
     with open(out_file, 'w') as outfile:
         for fname in run_files:
             with open(fname) as infile:

@@ -7,15 +7,6 @@ import os
 
 def format_file(fn):
     annotation_dir = '../annotations/raw'
-    #ra = pd.read_csv(os.path.join(annotation_dir, fn), sep='\t', skiprows=1)
-    # if 'ra1' in fn:
-    #    ra.rename(
-    #        columns={"Begin Time - ss.msec": "Start", "End Time - ss.msec": "End", "Duration - ss.msec": "Duration",
-    #                 "Face(s) present": "Face Present"}, inplace=True)
-    #else:
-    #    ra.rename(
-    #        columns={"Begin Time - ss.msec": "Start", "End Time - ss.msec": "End", "Duration - ss.msec": "Duration",
-    #                 "Face present": "Face Present"}, inplace=True)
     ra = pd.read_csv(os.path.join(annotation_dir, fn), sep='\t', names=['Dimension', 'Blank', 'Start', 'End', 'Duration'], index_col=False) 
     return ra
 
@@ -32,7 +23,7 @@ def timing1D(df):
     newdf = pd.DataFrame(columns=['start', 'end'])
     # start with index 0
     index = 0
-    while index < df.shape[0] -1:
+    while index < df.shape[0] -2:
         start, end = contiguous_blocks(df, index)
         row = pd.DataFrame([[df.loc[start, 'Start'], df.loc[end, 'End']]], columns=['start', 'end'])
         newdf = newdf.append(row)

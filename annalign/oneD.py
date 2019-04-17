@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 import pandas as pd
 import numpy as np
 import glob
@@ -6,16 +7,16 @@ import os
 
 def format_file(fn):
     annotation_dir = '../annotations/raw'
-    ra = pd.read_csv(os.path.join(annotation_dir, fn), sep='\t', skiprows=1)
-    if 'ra1' in fn:
-        ra.rename(
-            columns={"Begin Time - ss.msec": "Start", "End Time - ss.msec": "End", "Duration - ss.msec": "Duration",
-                     "Face(s) present": "Face Present"}, inplace=True)
-    else:
-        ra.rename(
-            columns={"Begin Time - ss.msec": "Start", "End Time - ss.msec": "End", "Duration - ss.msec": "Duration",
-                     "Face present": "Face Present"}, inplace=True)
-
+    #ra = pd.read_csv(os.path.join(annotation_dir, fn), sep='\t', skiprows=1)
+    # if 'ra1' in fn:
+    #    ra.rename(
+    #        columns={"Begin Time - ss.msec": "Start", "End Time - ss.msec": "End", "Duration - ss.msec": "Duration",
+    #                 "Face(s) present": "Face Present"}, inplace=True)
+    #else:
+    #    ra.rename(
+    #        columns={"Begin Time - ss.msec": "Start", "End Time - ss.msec": "End", "Duration - ss.msec": "Duration",
+    #                 "Face present": "Face Present"}, inplace=True)
+    ra = pd.read_csv(os.path.join(annotation_dir, fn), sep='\t', names=['Dimension', 'Blank', 'Start', 'End', 'Duration'], index_col=False) 
     return ra
 
 

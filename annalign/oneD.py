@@ -59,3 +59,18 @@ def concat_run_timings(sub, dimension, type_data):
         for fname in run_files:
             with open(fname) as infile:
                 outfile.write(infile.read())
+
+def create_new_annots(fn, part):
+    annotation_dir = '../annotations/raw'
+    df = pd.read_table(os.path.join(annotation_dir,fn), header=None)
+    df = df.dropna(axis=1, how='all')
+    df.columns = ['annot', 'start', 'end', 'dur', 'content']
+    df.round(1)    
+    # iterate through all unique annotations
+    for ann in pd.unique(df.annot):
+        prefix = '_'.join(['part_{}'.format(part)] + [val.lower() for val in ann.split(' ')])
+        start_times = df[df.annot == ann].start.values
+        print "saving {}".format(prefix)
+        prefix += '.txt'
+        np.savetxt(os.path.join("../outputs", prefix), start_times.reshape(1, start_times.shape[0]), fmt='%4.1f')
+     

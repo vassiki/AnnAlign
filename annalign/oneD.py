@@ -65,12 +65,18 @@ def create_new_annots(fn, part):
     df = pd.read_table(os.path.join(annotation_dir,fn), header=None)
     df = df.dropna(axis=1, how='all')
     df.columns = ['annot', 'start', 'end', 'dur', 'content']
-    df.round(1)    
+    df = df.round(1)    
     # iterate through all unique annotations
     for ann in pd.unique(df.annot):
         prefix = '_'.join(['part_{}'.format(part)] + [val.lower() for val in ann.split(' ')])
         start_times = df[df.annot == ann].start.values
+        durations = df[df.annot == ann].dur.values
+        save_mat = []
+        for p in zip(start_times, durations):
+            save_mat.append('{0}:{1}'.format(p[0], p[1]))
+        save_array = np.array(save_mat)
         print "saving {}".format(prefix)
-        prefix += '.txt'
-        np.savetxt(os.path.join("../outputs", prefix), start_times.reshape(1, start_times.shape[0]), fmt='%4.1f')
-     
+        prefix += '_new.txt'
+        #np.savetxt(os.path.join("../outputs", prefix), start_times.reshape(1, start_times.shape[0]), fmt='%4.1f')
+        np.savetxt(os.path.join("../outputs", prefix), save_array.reshape(1, save_array.shape[0]), fmt='%s')
+

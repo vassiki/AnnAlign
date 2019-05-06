@@ -15,3 +15,4 @@ annalign/..
 annalign/__pycache__
 annalign/trythings.py
 annalign/*.pyc
+outputs
